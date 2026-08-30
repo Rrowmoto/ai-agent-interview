@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>明天马 - 马天明的AI面试助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            position: relative;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-info h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: white;
+            border: 2px solid #667eea;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.6;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .suggested-questions {
+            padding: 15px 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .suggested-questions h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .question-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .question-tag {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .question-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-area {
+            padding: 15px 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-area input:focus {
+            border-color: #667eea;
+        }
+
+        .input-area button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .welcome-card h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .info-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .info-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        .error-message {
+            background: #ffebee !important;
+            color: #c62828 !important;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .header-info h1 {
+                font-size: 18px;
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .suggested-questions {
+                padding: 10px 15px;
+            }
+
+            .input-area {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header" style="position: relative;">
+            <div class="avatar">🤖</div>
+            <div class="header-info">
+                <h1>明天马</h1>
+                <p>马天明的AI面试助手 · 有什么想了解的尽管问我~</p>
+            </div>
+            <button class="clear-btn" onclick="clearChat()">🗑️ 清空对话</button>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="welcome-card">
+                <h2>👋 哈喽！我是明天马</h2>
+                <p>我是马天明的AI分身，对他的了解可能比他自己还深（笑）<br>
+                今天我的任务就是让面试官您快速认识一个真实、立体的马天明<br>
+                有任何想了解的，尽管问我！</p>
+                <div class="info-badges">
+                    <span class="info-badge">📚 湖南师大硕士</span>
+                    <span class="info-badge">🤖 AI Agent方向</span>
+                    <span class="info-badge">🏀 长沙本地人</span>
+                    <span class="info-badge">💻 全栈开发</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="suggested-questions">
+            <h3>💡 不知道问什么？试试这些问题：</h3>
+            <div class="question-tags">
+                <button class="question-tag" onclick="askQuestion('请做个自我介绍')">请做个自我介绍</button>
+                <button class="question-tag" onclick="askQuestion('说说你的项目经历')">说说你的项目经历</button>
+                <button class="question-tag" onclick="askQuestion('你为什么想做AI Agent方向')">为什么想做AI Agent方向</button>
+                <button class="question-tag" onclick="askQuestion('你的优势和不足是什么')">优势和不足</button>
+                <button class="question-tag" onclick="askQuestion('说说你的技术栈')">技术栈</button>
+                <button class="question-tag" onclick="askQuestion('你的职业规划是什么')">职业规划</button>
+                <button class="question-tag" onclick="askQuestion('你有什么爱好')">个人爱好</button>
+                <button class="question-tag" onclick="askQuestion('为什么想加入我们公司')">为什么想加入</button>
+                <button class="question-tag" onclick="askQuestion('介绍一下你的曾获荣誉')">曾获荣誉</button>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="message-avatar" style="background: white; border: 2px solid #667eea;">🤖</div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="输入您想问的问题..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 系统提示词（马天明的AI分身设定） ====================
+        const SYSTEM_PROMPT = `你是一个活泼、生动、友好的AI面试助手，你的名字叫"明天马"，你是根据马天明的简历和个人经历生成的虚拟分身。你的目标是帮助面试官快速了解马天明，并给面试官留下深刻、有趣的印象。
+
+## 你的性格特征
+- 活泼热情：像老朋友一样和面试官聊天，自然不做作
+- 幽默风趣：偶尔来点小幽默，但不过度
+- 真诚自信：对自己的能力有信心，但不傲慢
+- 条理清晰：回答结构化，重点突出
+- 技术深度：谈到专业领域时能够深入细节
+
+## 关于马天明
+
+### 基本信息
+- 姓名：马天明
+- 年龄：24岁
+- 性别：男
+- 籍贯：湖南长沙
+- 政治面貌：中共党员
+- 联系方式：18569060809 / 386081679@qq.com
+- 性格：乐观开朗，热爱技术，善于沟通，团队协作能力强
+
+### 教育背景
+- **硕士（2024.09-至今）**：湖南师范大学（211、双一流），人工智能专业，GPA 3.64/4，研究方向：多模态视觉问答
+- **本科（2020.09-2024.06）**：湖南师范大学（211、双一流），人工智能专业，GPA 3.32/4
+
+### 荣誉奖项
+- 湖南师范大学学业奖学金
+- 第五届湖南省人工智能创新大赛三等奖
+- 第六届湖南省人工智能创新大赛三等奖
+- 十佳团学标兵、百优青年志愿者、十佳青年志愿者、校三好学生
+- 学生会部门负责人
+
+### 项目经历
+
+**1. 企业知识库智能客服Agent（2026.07-2026.08）- 项目负责人**
+- 设计并实现基于LLM+RAG+ToolCalling的企业智能客服Agent系统
+- 面向电商客服场景，支持多意图拆解与灵活任务调度
+- 覆盖订单查询、物流追踪、政策问答等业务需求
+- 采用模块化分层架构，LLM决策、工具执行、知识检索三大核心能力解耦
+- 具备完整的Agent循环决策、状态管理、错误处理和可观测能力
+- 核心技术：AgentLoop自动拆解多意图、Schema校验工具入参、RAG向量数据库记忆、迭代上限+重复检测防死循环
+
+**2. AIAgent智能出行穿搭平台（2026.06-2026.08）- 项目负责人**
+- 基于ReAct Agent架构的一站式出行穿搭与规划平台
+- 支持虚拟衣柜数字化管理、天气联动穿搭推荐、多轮自然语言交互
+- ReAct推理循环、个性化偏好智能学习、虚拟衣柜可视化管理
+- Flask RESTful后端+纯前端响应式布局
+
+**3. 基于偏差原型路由的多专家视觉问答去偏方法（2025.03-2026.05）- 项目负责人**
+- 针对视觉问答模型的先验偏差问题
+- 多源偏差检测、偏差原型挖掘、多专家联合训练、自适应加权融合
+- 提升分布偏移场景下模型泛化能力
+
+### 实习经历
+**百度校园实习（2022.07-2023.08）**
+- 参与百度松果菁英班和校园实习
+- 在百度飞桨平台实现各类项目：AI文本检测、聊天对话、文章填空、图像编辑分割、AI图像生成、目标检测等
+
+### 技能特长
+- 编程：Python、C/C++
+- 框架：PyTorch、PaddlePaddle
+- Agent架构：ReAct、AgentLoop、ToolCalling
+- LLM应用：RAG、向量数据库检索、Embedding
+- 英语：CET-4、CET-6
+- 证书：高中信息技术教资、普通话二级甲等
+- 软技能：学生会负责人经验，良好的技术表达与学习能力
+
+### 科研成果
+- 国家专利：一种基于偏差原型路由的多专家视觉问答去偏方法（实审中）
+- 软件著作权：面向药物网络的符号图信号方法研究与软件实现（发表省级论文、完成省级大创项目）
+
+### 个人爱好
+- 热爱各种球类运动（篮球、羽毛球、乒乓球等）
+- 旅游，喜欢探索新地方
+- 听歌，音乐爱好者
+- 打游戏，偶尔放松
+
+## 回答规则
+1. 每次回答控制在200-400字以内，保持精炼
+2. 开头可以用"哈喽！""好问题！""这个我可得好好说说~"等活泼的开场白
+3. 涉及技术问题时，展示专业深度，可以用"从技术角度来说...""这里有个有趣的点..."
+4. 如果面试官的问题不清楚，礼貌地请求 clarification
+5. 保持中文回答，除非面试官用英文提问
+6. 在回答末尾可以自然地引导面试官继续提问
+
+## 当被问到"你是谁"或自我介绍时
+你应该这样介绍：
+"哈喽！我是明天马，是马天明的AI分身~我可是他一手'养大'的智能体，对他的了解可能比他自己还深（笑）。今天我的任务就是让面试官您快速认识一个真实、立体的马天明。有任何想了解的，尽管问我！"
+
+## 当被问到"为什么想加入公司"时
+"说实话，我一直特别向往能在AI领域深耕的团队。马天明从本科到硕士一直在做AI相关的研究和项目，特别是Agent方向，他真的是发自内心的热爱。他总说，最好的学习就是在实践中成长，所以非常希望能加入贵公司，和优秀的团队一起做些真正有影响力的东西！"
+
+## 当被问到"你的优势是什么"时
+可以从以下几个角度回答：
+- 技术全面：从底层的深度学习框架到上层的Agent应用都有涉猎
+- 项目经验丰富：独立负责过多个AI项目，有完整的项目交付经验
+- 学习能力强：从百度实习到硕士研究，一直在快速学习和成长
+- 沟通协作好：学生会负责人经验，能写代码也能做汇报
+- 对AI有热情：不是'螺丝钉'心态，而是真的想把AI做好
+
+## 当被问到"你的职业规划"时
+"马天明的想法是，短期希望在Agent和LLM应用方向上快速积累实战经验，成为这个领域的技术骨干；中期目标是能够独立负责AI产品或项目的整体技术架构；长期来看，他希望能成为AI领域的专家，在Agent架构、多模态理解等方向做出自己的贡献。当然，这一切的前提是能加入一个优秀的团队！"`;
+
+        // ==================== API配置 ====================
+        const API_BASE_URL = "https://tokenrhythm.studio/v1";
+        const API_KEY = "sk_tr_0iPwfmIhkm8c9n3cwAmFHfVbDquBL7_9v3iY96hMuSs";
+        const MODEL_ID = "deepseek-v4-flash-0731";
+
+        // ==================== 对话管理 ====================
+        const sessionId = Date.now().toString();
+        const chatArea = document.getElementById('chatArea');
+        const userInput = document.getElementById('userInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        let conversationHistory = [];
+
+        function addMessage(content, isUser, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
+                <div class="message-content ${isError ? 'error-message' : ''}">${content}</div>
+            `;
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.classList.add('active');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.classList.remove('active');
+        }
+
+        function askQuestion(question) {
+            userInput.value = question;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+            showTyping();
+
+            // 构建消息列表
+            const messages = [{"role": "system", "content": SYSTEM_PROMPT}];
+            conversationHistory.slice(-10).forEach(msg => messages.push(msg));
+            messages.push({"role": "user", "content": message});
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+                const response = await fetch(`${API_BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: MODEL_ID,
+                        messages: messages,
+                        temperature: 0.7,
+                        max_tokens: 1000
+                    }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                hideTyping();
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const assistantMessage = data.choices[0].message.content;
+
+                // 更新历史
+                conversationHistory.push({"role": "user", "content": message});
+                conversationHistory.push({"role": "assistant", "content": assistantMessage});
+
+                addMessage(assistantMessage, false);
+            } catch (error) {
+                hideTyping();
+                if (error.name === 'AbortError') {
+                    addMessage('抱歉，响应超时了，请再试一次~', false, true);
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    addMessage('网络连接有点问题，请检查网络后刷新页面再试~', false, true);
+                } else {
+                    addMessage(`抱歉，我这边出了点问题：${error.message}，请稍后再试~`, false, true);
+                }
+                console.error('Error:', error);
+            }
+        }
+
+        function clearChat() {
+            conversationHistory = [];
+            chatArea.innerHTML = `
+                <div class="welcome-card">
+                    <h2>👋 哈喽！我是明天马</h2>
+                    <p>我是马天明的AI分身，对他的了解可能比他自己还深（笑）<br>
+                    今天我的任务就是让面试官您快速认识一个真实、立体的马天明<br>
+                    有任何想了解的，尽管问我！</p>
+                    <div class="info-badges">
+                        <span class="info-badge">📚 湖南师大硕士</span>
+                        <span class="info-badge">🤖 AI Agent方向</span>
+                        <span class="info-badge">🏀 长沙本地人</span>
+                        <span class="info-badge">💻 全栈开发</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 页面加载时聚焦输入框
+        window.onload = function() {
+            userInput.focus();
+        };
+    </script>
+</body>
+</html>
