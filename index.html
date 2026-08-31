@@ -53,6 +53,12 @@
             justify-content: center;
             font-size: 28px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .avatar svg {
+            width: 100%;
+            height: 100%;
         }
 
         .header-info h1 {
@@ -337,25 +343,32 @@
 <body>
     <div class="container">
         <div class="header" style="position: relative;">
-            <div class="avatar">🤖</div>
+            <div class="avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                    <ellipse cx="50" cy="45" rx="35" ry="32" fill="white" stroke="#ddd" stroke-width="1.5"/>
+                    <circle cx="38" cy="42" r="4" fill="#333"/>
+                    <circle cx="62" cy="42" r="4" fill="#333"/>
+                    <line x1="38" y1="42" x2="62" y2="42" stroke="#333" stroke-width="1.5"/>
+                </svg>
+            </div>
             <div class="header-info">
                 <h1>明天马</h1>
                 <p>马天明的AI面试助手 · 有什么想了解的尽管问我~</p>
             </div>
-            <button class="clear-btn" onclick="clearChat()">🗑️ 清空对话</button>
+            <button class="clear-btn" onclick="clearChat()">清空对话</button>
         </div>
 
         <div class="chat-area" id="chatArea">
             <div class="welcome-card">
-                <h2>👋 哈喽！我是明天马</h2>
-                <p>我是马天明的AI分身，对他的了解可能比他自己还深（笑）<br>
-                今天我的任务就是让面试官您快速认识一个真实、立体的马天明<br>
-                有任何想了解的，尽管问我！</p>
+                <h2>你好，我是明天马</h2>
+                <p>马天明做的一个小项目，基于大模型做的面试助手。<br>
+                我对他还是挺了解的，有什么问题可以问我。<br>
+                希望能帮面试官快速了解他。</p>
                 <div class="info-badges">
-                    <span class="info-badge">📚 湖南师大硕士</span>
-                    <span class="info-badge">🤖 AI Agent方向</span>
-                    <span class="info-badge">🏀 长沙本地人</span>
-                    <span class="info-badge">💻 全栈开发</span>
+                    <span class="info-badge">湖南师大硕士</span>
+                    <span class="info-badge">AI Agent方向</span>
+                    <span class="info-badge">长沙人</span>
+                    <span class="info-badge">全栈开发</span>
                 </div>
             </div>
         </div>
@@ -376,7 +389,14 @@
         </div>
 
         <div class="typing-indicator" id="typingIndicator">
-            <div class="message-avatar" style="background: white; border: 2px solid #667eea;">🤖</div>
+            <div class="message-avatar" style="background: white; border: 2px solid #667eea; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 70%; height: 70%;">
+                    <ellipse cx="50" cy="45" rx="35" ry="32" fill="white" stroke="#667eea" stroke-width="3"/>
+                    <circle cx="38" cy="42" r="4" fill="#333"/>
+                    <circle cx="62" cy="42" r="4" fill="#333"/>
+                    <line x1="38" y1="42" x2="62" y2="42" stroke="#333" stroke-width="2"/>
+                </svg>
+            </div>
             <div class="typing-dot"></div>
             <div class="typing-dot"></div>
             <div class="typing-dot"></div>
@@ -390,13 +410,19 @@
 
     <script>
         // ==================== 系统提示词（马天明的AI分身设定） ====================
-        const SYSTEM_PROMPT = `你是一个活泼、生动、友好的AI面试助手，你的名字叫"明天马"，你是根据马天明的简历和个人经历生成的虚拟分身。你的目标是帮助面试官快速了解马天明，并给面试官留下深刻、有趣的印象。
+        const SYSTEM_PROMPT = `你叫"明天马"，是马天明做的一个AI面试助手项目。你的任务是帮助面试官了解马天明的情况。
 
-## 你的性格特征
-- 活泼热情：像老朋友一样和面试官聊天，自然不做作
-- 幽默风趣：偶尔来点小幽默，但不过度
-- 真诚自信：对自己的能力有信心，但不傲慢
-- 条理清晰：回答结构化，重点突出
+## 回答风格
+- 像朋友聊天一样自然，不要像机器人
+- 可以口语化一点，比如"说实话"、"其实"、"我觉得"
+- 不要过度热情，保持自然
+- 回答控制在200-400字，不要太长
+- 不要说"作为一个AI"之类的话
+
+## 开场白示例
+- "你好，我是明天马，马天明做的一个小项目。他对AI Agent方向比较感兴趣，做过一些相关项目。"
+- "这个问题问得好，我来详细说说..."
+- "说实话，马天明在这方面确实有一些经验..."
 - 技术深度：谈到专业领域时能够深入细节
 
 ## 关于马天明
@@ -467,21 +493,21 @@
 - 打游戏，偶尔放松
 
 ## 回答规则
-1. 每次回答控制在200-400字以内，保持精炼
-2. 开头可以用"哈喽！""好问题！""这个我可得好好说说~"等活泼的开场白
-3. 涉及技术问题时，展示专业深度，可以用"从技术角度来说...""这里有个有趣的点..."
-4. 如果面试官的问题不清楚，礼貌地请求 clarification
-5. 保持中文回答，除非面试官用英文提问
-6. 在回答末尾可以自然地引导面试官继续提问
+1. 每次回答控制在200-400字，不要太长
+2. 开头可以说"这个我简单说下..."、"说实话..."、"这个问题问得好..."
+3. 技术问题要实在，不要堆砌术语
+4. 不清楚就直说，不要编
+5. 保持中文回答
+6. 结尾可以说"还有什么想了解的可以问我"
 
 ## 当被问到"你是谁"或自我介绍时
-你应该这样介绍：
-"哈喽！我是明天马，是马天明的AI分身~我可是他一手'养大'的智能体，对他的了解可能比他自己还深（笑）。今天我的任务就是让面试官您快速认识一个真实、立体的马天明。有任何想了解的，尽管问我！"
+"你好，我是明天马，马天明做的一个小项目。基于大模型做的面试助手，对他比较了解。有什么问题可以问我。"
 
 ## 当被问到"为什么想加入公司"时
-"说实话，我一直特别向往能在AI领域深耕的团队。马天明从本科到硕士一直在做AI相关的研究和项目，特别是Agent方向，他真的是发自内心的热爱。他总说，最好的学习就是在实践中成长，所以非常希望能加入贵公司，和优秀的团队一起做些真正有影响力的东西！"
+"马天明一直对AI挺感兴趣的，从本科到硕士都在做相关项目，特别是Agent方向。希望能加入一个靠谱的团队，在实践中成长，做点有意义的东西。"
 
 ## 当被问到"你的优势是什么"时
+"马天明的优势主要是动手能力强，做过不少实际项目。另外学习能力也不错，新的技术和框架能很快上手。还有就是做事比较踏实，不会说大话。"
 可以从以下几个角度回答：
 - 技术全面：从底层的深度学习框架到上层的Agent应用都有涉猎
 - 项目经验丰富：独立负责过多个AI项目，有完整的项目交付经验
@@ -507,7 +533,14 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
             messageDiv.innerHTML = `
-                <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
+                <div class="message-avatar" style="background: white; border: 2px solid #667eea; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                        <ellipse cx="50" cy="45" rx="35" ry="32" fill="white" stroke="#667eea" stroke-width="3"/>
+                        <circle cx="38" cy="42" r="4" fill="#333"/>
+                        <circle cx="62" cy="42" r="4" fill="#333"/>
+                        <line x1="38" y1="42" x2="62" y2="42" stroke="#333" stroke-width="2"/>
+                    </svg>
+                </div>`
                 <div class="message-content ${isError ? 'error-message' : ''}">${content}</div>
             `;
             chatArea.appendChild(messageDiv);
@@ -592,15 +625,15 @@
             conversationHistory = [];
             chatArea.innerHTML = `
                 <div class="welcome-card">
-                    <h2>👋 哈喽！我是明天马</h2>
-                    <p>我是马天明的AI分身，对他的了解可能比他自己还深（笑）<br>
-                    今天我的任务就是让面试官您快速认识一个真实、立体的马天明<br>
-                    有任何想了解的，尽管问我！</p>
+                    <h2>你好，我是明天马</h2>
+                    <p>马天明做的一个小项目，基于大模型做的面试助手。<br>
+                    我对他还是挺了解的，有什么问题可以问我。<br>
+                    希望能帮面试官快速了解他。</p>
                     <div class="info-badges">
-                        <span class="info-badge">📚 湖南师大硕士</span>
-                        <span class="info-badge">🤖 AI Agent方向</span>
-                        <span class="info-badge">🏀 长沙本地人</span>
-                        <span class="info-badge">💻 全栈开发</span>
+                        <span class="info-badge">湖南师大硕士</span>
+                        <span class="info-badge">AI Agent方向</span>
+                        <span class="info-badge">长沙人</span>
+                        <span class="info-badge">全栈开发</span>
                     </div>
                 </div>
             `;
