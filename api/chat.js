@@ -1,7 +1,7 @@
 // Vercel Serverless Function - 代理 TokenRhythm API
 const https = require('https');
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // 设置 CORS 响应头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -9,22 +9,24 @@ module.exports = async function handler(req, res) {
 
   // 处理 OPTIONS 预检请求
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
 
   // 只允许 POST 请求
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
   try {
     const { messages, model, temperature, max_tokens } = req.body || {};
 
     if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'messages is required' });
+      res.status(400).json({ error: 'messages is required' });
+      return;
     }
 
-    // 调用 TokenRhythm API
     const apiData = JSON.stringify({
       model: model || 'deepseek-v4-flash-0731',
       messages: messages,
@@ -72,6 +74,6 @@ module.exports = async function handler(req, res) {
     apiReq.write(apiData);
     apiReq.end();
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
-};
+}
