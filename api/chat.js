@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     }
 
     const apiData = JSON.stringify({
-      model: model || 'deepseek-v4-flash-0731',
+      model: model || 'deepseek-v4-flash',
       messages: messages,
       temperature: temperature || 0.7,
       max_tokens: max_tokens || 2000,
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk_tr_0iPwfmIhkm8c9n3cwAmFHfVbDquBL7_9v3iY96hMuSs',
+        'Authorization': 'Bearer sk_tr_l6fAS_vsapXohFQPkmuVR7gZI9D1Vn6PxmkddCNT8Fc',
         'Content-Length': Buffer.byteLength(apiData),
       },
       timeout: 30000,

@@ -9,7 +9,7 @@ CORS(app)
 
 # 配置
 API_BASE_URL = "https://tokenrhythm.studio/v1"
-API_KEY = "sk_tr_0iPwfmIhkm8c9n3cwAmFHfVbDquBL7_9v3iY96hMuSs"
+API_KEY = "sk_tr_l6fAS_vsapXohFQPkmuVR7gZI9D1Vn6PxmkddCNT8Fc"
 MODEL_ID = "deepseek-v4-flash"
 
 # 读取系统提示词

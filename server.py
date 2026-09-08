@@ -7,8 +7,8 @@ app = Flask(__name__, static_folder='.')
 CORS(app)
 
 API_BASE_URL = "https://tokenrhythm.studio/v1"
-API_KEY = "sk_tr_0iPwfmIhkm8c9n3cwAmFHfVbDquBL7_9v3iY96hMuSs"
-MODEL_ID = "deepseek-v4-flash-0731"
+API_KEY = "sk_tr_l6fAS_vsapXohFQPkmuVR7gZI9D1Vn6PxmkddCNT8Fc"
+MODEL_ID = "deepseek-v4-flash"
 
 @app.route('/')
 def index():
